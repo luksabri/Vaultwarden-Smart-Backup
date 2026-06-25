@@ -16,7 +16,7 @@ O projeto une a eficiência do Shell Script com o poder de orquestração do n8n
 ---
 
 ## 📂 Estrutura do Repositório
-
+```text
 vaultwarden-smart-backup/
 ├── .gitignore
 ├── README.md
