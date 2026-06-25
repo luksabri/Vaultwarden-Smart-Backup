@@ -153,7 +153,7 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 ---
 
 ### 2. O Script Limpo (`script/backups.sh`)
-*Crie a pasta `script`, adicione o arquivo `backups.sh` e salve o código abaixo, que já está com dados genéricos de exemplo:*
+
 
 ```bash
 #!/bin/bash
