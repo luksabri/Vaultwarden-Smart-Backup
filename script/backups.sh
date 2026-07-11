@@ -26,7 +26,7 @@ docker pause "$CONTAINER_NAME" > /dev/null
 TMP_DIR=$(mktemp -d)
 
 # 1. Copia o banco de dados principal e seus arquivos de log transacionais essenciais (WAL/SHM)
-cp "${VOLUME_HOST_DIR}/db.sqlite3" "$TMP_DIR/" 2>/dev/null
+[ -f "${VOLUME_HOST_DIR}/db.sqlite3" ] && cp "${VOLUME_HOST_DIR}/db.sqlite3" "$TMP_DIR/"
 [ -f "${VOLUME_HOST_DIR}/db.sqlite3-wal" ] && cp "${VOLUME_HOST_DIR}/db.sqlite3-wal" "$TMP_DIR/"
 [ -f "${VOLUME_HOST_DIR}/db.sqlite3-shm" ] && cp "${VOLUME_HOST_DIR}/db.sqlite3-shm" "$TMP_DIR/"
 
