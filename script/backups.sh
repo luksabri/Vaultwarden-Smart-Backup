@@ -62,7 +62,8 @@ JSON_PAYLOAD=$(cat <<EOF
   "status": "$STATUS_BACKUP",
   "arquivo_criado": "$NOME_ARQUIVO",
   "arquivo_excluido": "$ARQUIVO_DELETADO",
-  "mensagem": "Backup do Vaultwarden processado com pausa de seguranca."
+  "mensagem": "Backup do Vaultwarden processado com pausa de seguranca.",
+  "origem": "Servidor Oracle"
 }
 EOF
 )
