@@ -4,7 +4,7 @@
 # CONFIGURAÇÕES - AJUSTE DE ACORDO COM O SEU AMBIENTE
 # ==============================================================================
 CONTAINER_NAME="vaultwarden"
-VOLUME_HOST_DIR="/home/ubuntu/vaultwarden_data"
+VOLUME_HOST_DIR="/home/ubuntu/docker/vaultwarden"
 BACKUP_DIR="/home/ubuntu/backups"
 WEBHOOK_URL="https://seu-n8n.seu-dominio.com/webhook/backup-vaultwarden"
 
