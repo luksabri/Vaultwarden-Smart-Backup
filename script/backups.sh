@@ -39,6 +39,7 @@ cp "${VOLUME_HOST_DIR}/db.sqlite3" "$TMP_DIR/" 2>/dev/null
 [ -f "${VOLUME_HOST_DIR}/config.json" ] && cp "${VOLUME_HOST_DIR}/config.json" "$TMP_DIR/"
 [ -d "${VOLUME_HOST_DIR}/attachments" ] && cp -r "${VOLUME_HOST_DIR}/attachments" "$TMP_DIR/"
 [ -d "${VOLUME_HOST_DIR}/sends" ] && cp -r "${VOLUME_HOST_DIR}/sends" "$TMP_DIR/"
+[ -d "${VOLUME_HOST_DIR}/tmp" ] && cp -r "${VOLUME_HOST_DIR}/tmp" "$TMP_DIR/"
 
 # Entra na pasta temporária e faz a compactação limpa
 cd "$TMP_DIR" || exit
