@@ -162,9 +162,9 @@ Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes
 # CONFIGURAÇÕES - AJUSTE DE ACORDO COM O SEU AMBIENTE
 # ==============================================================================
 CONTAINER_NAME="vaultwarden"
-VOLUME_HOST_DIR="/home/ubuntu/docker/vaultwarden_data"
+VOLUME_HOST_DIR="/home/ubuntu/docker/vaultwarden/data"
 BACKUP_DIR="/home/ubuntu/backups"
-WEBHOOK_URL="https://seu-n8n.seu-dominio.com/webhook/backup-vaultwarden"
+WEBHOOK_URL="https://xxx.xxx.com.br/webhook/backup-vaultwarden"
 
 # Configuração de data e nomenclatura (Mudado para .tar.gz)
 DATA_ATUAL=$(date +"%d-%m_%H-%M")
@@ -175,30 +175,20 @@ CAMINHO_FINAL="${BACKUP_DIR}/${NOME_ARQUIVO}"
 mkdir -p "$BACKUP_DIR"
 
 # ==============================================================================
-# 1. CONGELAMENTO E COMPACTAÇÃO SEGURA (DOCKER PAUSE + CONSOLIDAÇÃO WAL)
+# 1. PARADA SEGURA E COMPACTAÇÃO (DOCKER STOP)
 # ==============================================================================
-echo "Congelando o container ${CONTAINER_NAME}..."
-docker pause "$CONTAINER_NAME" > /dev/null
+echo "Desligando temporariamente o container ${CONTAINER_NAME} para backup..."
+docker stop "$CONTAINER_NAME" > /dev/null
 
 # Cria uma pasta temporária isolada para organizar o ecossistema do Vaultwarden
 TMP_DIR=$(mktemp -d)
 
-# 1. Copia o banco de dados principal e seus arquivos de log transacionais essenciais (WAL/SHM)
-[ -f "${VOLUME_HOST_DIR}/db.sqlite3" ] && cp "${VOLUME_HOST_DIR}/db.sqlite3" "$TMP_DIR/"
-[ -f "${VOLUME_HOST_DIR}/db.sqlite3-wal" ] && cp "${VOLUME_HOST_DIR}/db.sqlite3-wal" "$TMP_DIR/"
-[ -f "${VOLUME_HOST_DIR}/db.sqlite3-shm" ] && cp "${VOLUME_HOST_DIR}/db.sqlite3-shm" "$TMP_DIR/"
+# Copia TODOS os arquivos da pasta de dados com segurança (já que tudo está desligado)
+# Usamos o cp -r para garantir que até os arquivos -wal e -shm fechem juntos perfeitamente
+cp -r "${VOLUME_HOST_DIR}/." "$TMP_DIR/"
 
-# 2. Copia as chaves RSA existentes (como o seu rsa_key.pem)
-[ -f "${VOLUME_HOST_DIR}/rsa_key.pem" ] && cp "${VOLUME_HOST_DIR}/rsa_key.pem" "$TMP_DIR/"
-[ -f "${VOLUME_HOST_DIR}/rsa_key.der" ] && cp "${VOLUME_HOST_DIR}/rsa_key.der" "$TMP_DIR/"
-[ -f "${VOLUME_HOST_DIR}/rsa_key.pub.der" ] && cp "${VOLUME_HOST_DIR}/rsa_key.pub.der" "$TMP_DIR/"
-
-# 3. Copia diretórios adicionais de persistência caso venham a existir no futuro
-[ -f "${VOLUME_HOST_DIR}/config.json" ] && cp "${VOLUME_HOST_DIR}/config.json" "$TMP_DIR/"
-[ -d "${VOLUME_HOST_DIR}/attachments" ] && cp -r "${VOLUME_HOST_DIR}/attachments" "$TMP_DIR/"
-[ -d "${VOLUME_HOST_DIR}/sends" ] && cp -r "${VOLUME_HOST_DIR}/sends" "$TMP_DIR/"
-[ -d "${VOLUME_HOST_DIR}/tmp" ] && cp -r "${VOLUME_HOST_DIR}/tmp" "$TMP_DIR/"
-[ -d "${VOLUME_HOST_DIR}/icon_cache" ] && cp -r "${VOLUME_HOST_DIR}/icon_cache" "$TMP_DIR/"
+echo "Reiniciando o container ${CONTAINER_NAME}..."
+docker start "$CONTAINER_NAME" > /dev/null
 
 # Entra na pasta temporária e faz a compactação limpa
 cd "$TMP_DIR" || exit
@@ -211,10 +201,7 @@ else
 fi
 
 # Limpeza absoluta da pasta temporária do sistema
-rm -rf "$TMP_DIR"
-
-echo "Descongelando o container ${CONTAINER_NAME}..."
-docker unpause "$CONTAINER_NAME" > /dev/null
+rm -rf "$TMP_DIR" 
 
 # Inicialização da variável de controle de rotação
 ARQUIVO_DELETADO="Nenhum (menos de 10 backups existentes)"
@@ -229,7 +216,7 @@ if [ "$STATUS_BACKUP" = "sucesso" ]; then
         # Identifica o arquivo compactado modificado há mais tempo na pasta
         ARQUIVO_ANTIGO=$(ls -t "$BACKUP_DIR"/*.tar.gz | tail -n 1)
         ARQUIVO_DELETADO=$(basename "$ARQUIVO_ANTIGO")
-        
+
         # Remoção física do arquivo excedente
         rm "$ARQUIVO_ANTIGO"
         echo "Rotação ativada. Arquivo antigo removido: ${ARQUIVO_DELETADO}"
